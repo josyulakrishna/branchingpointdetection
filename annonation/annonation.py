@@ -15,8 +15,8 @@ image_dict = {
             "id": 0,
             "license": 1,
             "file_name": "",
-            "height": 1080,
-            "width": 1920,
+            "height": 480,
+            "width": 640,
             "date_captured": "2020-07-20T19:39:26+00:00",
             "annotated":"true",
             "category_ids":[0],
@@ -31,6 +31,8 @@ def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, i
 
     segmentations = []
     polygons = []
+    bbox = []
+    area = []
     for contour in contours:
         # Flip from (row, col) representation to (x, y)
         # and subtract the padding pixel
@@ -44,14 +46,19 @@ def create_sub_mask_annotation(sub_mask, image_id, category_id, annotation_id, i
         polygons.append(poly)
         segmentation = np.array(poly.exterior.coords).ravel().tolist()
         segmentations.append(segmentation)
+        x, y, max_x, max_y = poly.bounds
+        w = max_x - x
+        h = max_y - y
+        bbox.append([x, y, w, h])
+        area.append(poly.area)
 
     # Combine the polygons to calculate the bounding box and area
-    multi_poly = MultiPolygon(polygons)
-    x, y, max_x, max_y = multi_poly.bounds
-    width = max_x - x
-    height = max_y - y
-    bbox = (x, y, width, height)
-    area = multi_poly.area
+    # multi_poly = MultiPolygon(polygons)
+    # x, y, max_x, max_y = multi_poly.bounds
+    # width = max_x - x
+    # height = max_y - y
+    # bbox = (x, y, width, height)
+    # area = multi_poly.area
 
     annotation = {
         'segmentation': segmentations,
@@ -158,7 +165,7 @@ def main():
     json_dict1["annotations"]+=annotations
     json_dict1["images"]+=images
 
-    with open('annotations1.json', 'w') as outfile:
+    with open('annotations.json', 'w') as outfile:
         json.dump(json_dict1, outfile)
 if __name__ == '__main__':
     main()

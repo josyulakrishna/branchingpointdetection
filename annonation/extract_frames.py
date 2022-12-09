@@ -17,6 +17,8 @@ def extractImages(pathIn, pathOut):
         vidcap.set(cv2.CAP_PROP_POS_MSEC, (count*100))    # added this line
         success, image = vidcap.read()
         print ('Read a new frame: ', success)
+        if not success:
+            return 0
         # cv2.imshow('image',image)
         ind = np.logical_and(image[:, :, 0] >= 200, image[:, :, 1] <= 15, image[:, :, 2] <= 15)
         image[ind, 0] = 255
@@ -31,7 +33,10 @@ def extractImages(pathIn, pathOut):
         # plt.imshow(image[:,:,::-1])
         # plt.show()
         # cv2.imwrite( pathOut + "img%d.jpg" % count, image)     # save frame as JPEG file
+        dim = (640, 480)
+        image = cv2.resize(image, dim, interpolation=cv2.INTER_AREA)
         img = Image.fromarray(image[:,:,::-1], 'RGB')
+
         img.save(pathOut + "img%d.jpg" % count)
         count = count + 1
 
@@ -40,8 +45,15 @@ if __name__=="__main__":
     # a = argparse.ArgumentParser()
     # a.add_argument("--pathIn", help="path to video")
     # a.add_argument("--pathOut", help="path to images")
-    pathIn = "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/render/labelled2.mkv"
-    pathOut = "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/labelled3/"
+    pathsIn = ["/home/josyula/Documents/DataAndModels/ufo_trees_labelled/render/unlabelled.mkv",
+             "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/render/unlabelled1.mkv",
+               "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/render/unlabelled2.mkv",]
+    pathsOut = ["/home/josyula/Documents/DataAndModels/ufo_trees_labelled/unlabelled/",
+                "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/unlabelled1/",
+                "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/unlabelled2/"]
+    # pathIn = "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/render/labelled2.mkv"
+    # pathOut = "/home/josyula/Documents/DataAndModels/ufo_trees_labelled/labelled3/"
     # args = a.parse_args()
     # print(args)
-    extractImages(pathIn, pathOut)
+    for i in range(len(pathsIn)):
+        extractImages(pathsIn[i], pathsOut[i])
